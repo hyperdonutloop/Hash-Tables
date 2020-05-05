@@ -16,10 +16,11 @@ class HashTable:
 
     Implement this.
     """
-    def __init__(self, storage):
+    def __init__(self, capacity):
         # creating an array with nones
-        self.storage = [None] * storage
-        self.capacity = len(self.storage)
+        self.capacity = capacity
+        self.storage = [None] * self.capacity
+        # self.size = 0
 
     def fnv1(self, key):
         """
@@ -37,7 +38,7 @@ class HashTable:
         hash = 5381
         for c in key:
             hash = (hash * 33) + ord(c)
-        return hash % self.capacity
+        return hash
 
     def hash_index(self, key):
         """
@@ -55,8 +56,36 @@ class HashTable:
 
         Implement this.
         """
+        
+        # index = self.hash_index(key)
+        # # the storage of that index is the key and the value
+        # self.storage[index] = (key, value)
+
+        # index = the index of whatever the hash function came up with
         index = self.hash_index(key)
-        self.storage[index] = (key, value)
+        # setting the node to iterate through linked list
+        node = self.storage[index]
+        # if there are no other values at this index
+        if node is None:
+            # set storage at the hashed index to the key/value
+            # placing the key, value pairs at that index
+            self.storage[index] = HashTableEntry(key, value)
+            return
+        # otherwise
+        # if there ARE nodes at this index
+        prev = node
+        # iterate through all nodes, while next is not None and node's key does not equal input key
+        while node is not None and node.key != key:
+            prev = node
+            node = node.next
+        # if the nodes key matches the input key
+        if prev.key == key:
+            # update the node's value
+            prev.value = value
+            return
+        else: 
+            # otherwise, create and insert a new entry for the last node
+            prev.next = HashTableEntry(key, value)
 
     def delete(self, key):
         """
@@ -66,7 +95,9 @@ class HashTable:
 
         Implement this.
         """
+        # index = the index of whatever the hash function came up with - should always be the same
         index = self.hash_index(key)
+        # taking that index value and assigning it to None removing key and value
         self.storage[index] = None
 
     def get(self, key):
@@ -77,8 +108,11 @@ class HashTable:
 
         Implement this.
         """
+        # index = the index of whatever the hash function came up with - should always be the same
         index = self.hash_index(key)
+        # if the index is there
         if self.storage[index] is not None:
+            # return the value
             return self.storage[index][1]
         else:
             return None
