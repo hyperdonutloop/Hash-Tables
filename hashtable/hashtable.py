@@ -129,13 +129,19 @@ class HashTable:
         index = self.hash_index(key)
         # if the index is there
         node = self.storage[index]
-
+        # if there is nothing at the index
         if self.storage[index] is None:
+            # return none
             return None
+        # while node is not none and the key is not found
         while node is not None and key != node.key:
+            # update next pointer
             node = node.next
+        # then we check if node is not None
         if node is None:
+            # return none
             return None
+        # otherwise, this means key is found, so return value
         return node.value
 
     def resize(self):
