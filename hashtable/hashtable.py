@@ -71,8 +71,8 @@ class HashTable:
             # placing the key, value pairs at that index
             self.storage[index] = HashTableEntry(key, value)
             return
-        # otherwise
-        # if there ARE nodes at this index
+        # otherwise if there ARE nodes at this index
+        # WHAT IS THIS DOING AGAIN?
         prev = node
         # iterate through all nodes, while next is not None and node's key does not equal input key
         while node is not None and node.key != key:
@@ -97,8 +97,25 @@ class HashTable:
         """
         # index = the index of whatever the hash function came up with - should always be the same
         index = self.hash_index(key)
-        # taking that index value and assigning it to None removing key and value
-        self.storage[index] = None
+        # setting the node so that we can iterate through if there are collisions
+        node = self.storage[index]
+
+        prev = None
+        # if there is data at this node, loop through until you get a key that matches or node is None
+        while node is not None and node.key != key:
+            prev = node
+            node = node.next
+        # if there is nothing
+        if node is None:
+            # return this
+            return 'No key found here'
+        # if the key matches, delete the node entirely
+        # this is also saying if node.key == key
+        else: 
+            if prev is None: 
+                self.storage[index] = node.next
+            else: 
+                prev.next = node.next
 
     def get(self, key):
         """
@@ -111,11 +128,15 @@ class HashTable:
         # index = the index of whatever the hash function came up with - should always be the same
         index = self.hash_index(key)
         # if the index is there
-        if self.storage[index] is not None:
-            # return the value
-            return self.storage[index][1]
-        else:
+        node = self.storage[index]
+
+        if self.storage[index] is None:
             return None
+        while node is not None and key != node.key:
+            node = node.next
+        if node is None:
+            return None
+        return node.value
 
     def resize(self):
         """
