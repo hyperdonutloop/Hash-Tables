@@ -20,7 +20,8 @@ class HashTable:
         # creating an array with nones
         self.capacity = capacity
         self.storage = [None] * self.capacity
-        # self.size = 0
+        # self.total_items = 0
+        # self.load_factor = 0
 
     def fnv1(self, key):
         """
@@ -56,36 +57,36 @@ class HashTable:
 
         Implement this.
         """
-        
-        # index = self.hash_index(key)
-        # # the storage of that index is the key and the value
-        # self.storage[index] = (key, value)
+
 
         # index = the index of whatever the hash function came up with
         index = self.hash_index(key)
         # setting the node to iterate through linked list
+        # assigning node to whatever index it needs to be at
         node = self.storage[index]
         # if there are no other values at this index
         if node is None:
             # set storage at the hashed index to the key/value
-            # placing the key, value pairs at that index
+            # appending the key, value pairs at that index
             self.storage[index] = HashTableEntry(key, value)
             return
-        # otherwise if there ARE nodes at this index
-        # WHAT IS THIS DOING AGAIN?
-        prev = node
-        # iterate through all nodes, while next is not None and node's key does not equal input key
-        while node is not None and node.key != key:
+        # otherwise
+        # initializing prev, so you can set next node
+        prev = None
+        # while there is a value there
+        while node is not None:
+            # initializing prev to node
             prev = node
+            # appending the node as the node.next
             node = node.next
         # if the nodes key matches the input key
-        if prev.key == key:
+            if prev.key == key:
             # update the node's value
-            prev.value = value
-            return
-        else: 
-            # otherwise, create and insert a new entry for the last node
-            prev.next = HashTableEntry(key, value)
+                prev.value = value
+                return
+            
+        # now assigning the key,value to the new node spot
+        prev.next = HashTableEntry(key, value)
 
     def delete(self, key):
         """
@@ -95,6 +96,12 @@ class HashTable:
 
         Implement this.
         """
+
+        # When you delete():
+        #   if the load < 0.2:
+        #       if size > minimum (8):
+        #         halve the size of the hashtable down (to the minimum, at most)
+        
         # index = the index of whatever the hash function came up with - should always be the same
         index = self.hash_index(key)
         # setting the node so that we can iterate through if there are collisions
@@ -116,6 +123,7 @@ class HashTable:
                 self.storage[index] = node.next
             else: 
                 prev.next = node.next
+        
 
     def get(self, key):
         """
@@ -151,6 +159,21 @@ class HashTable:
 
         Implement this.
         """
+        # make a new/bigger table
+        # go through all the old elements and hash into new list
+        old_stuff = self.storage
+        self.capacity = self.capacity * 2
+        new_stuff = [None] * self.capacity
+        self.storage = new_stuff
+
+        self.size = 0
+
+        for item in old_stuff:
+            if item is not None:
+                while item is not None:
+                    self.put(item.key, item.value)
+                    item = item.next
+
 
 if __name__ == "__main__":
     ht = HashTable(2)
