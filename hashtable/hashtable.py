@@ -1,3 +1,5 @@
+import math
+
 class HashTableEntry:
     """
     Hash Table entry, as a linked list node.
@@ -17,11 +19,12 @@ class HashTable:
     Implement this.
     """
     def __init__(self, capacity):
-        # creating an array with nones
         self.capacity = capacity
         self.storage = [None] * self.capacity
-        # self.total_items = 0
-        # self.load_factor = 0
+        self.size = 0
+    
+    def get_load_factor(self):
+        return self.size / self.capacity
 
     def fnv1(self, key):
         """
@@ -57,7 +60,7 @@ class HashTable:
 
         Implement this.
         """
-
+        
 
         # index = the index of whatever the hash function came up with
         index = self.hash_index(key)
@@ -69,11 +72,16 @@ class HashTable:
             # set storage at the hashed index to the key/value
             # appending the key, value pairs at that index
             self.storage[index] = HashTableEntry(key, value)
+            self.size += 1
+            # after the increase, if load factor is greater than 0.7
+            if self.get_load_factor() > 0.7:
+                # then resize
+                self.resize(self.capacity *2)
             return
         # otherwise
         # initializing prev, so you can set next node
         prev = None
-        # while there is a value there
+        #while there is a value there
         while node is not None:
             # initializing prev to node
             prev = node
@@ -87,6 +95,9 @@ class HashTable:
             
         # now assigning the key,value to the new node spot
         prev.next = HashTableEntry(key, value)
+        self.size += 1
+        if self.get_load_factor() > 0.7:
+                self.resize(self.capacity *2)
 
     def delete(self, key):
         """
@@ -152,7 +163,7 @@ class HashTable:
         # otherwise, this means key is found, so return value
         return node.value
 
-    def resize(self):
+    def resize(self, value):
         """
         Doubles the capacity of the hash table and
         rehash all key/value pairs.
@@ -162,17 +173,17 @@ class HashTable:
         # make a new/bigger table
         # go through all the old elements and hash into new list
         old_stuff = self.storage
-        self.capacity = self.capacity * 2
+        self.capacity = value
         new_stuff = [None] * self.capacity
         self.storage = new_stuff
 
         self.size = 0
-
+        # iterate through every item in old array
         for item in old_stuff:
-            if item is not None:
-                while item is not None:
-                    self.put(item.key, item.value)
-                    item = item.next
+            cur_node = item
+            while cur_node is not None:
+                self.put(cur_node.key, cur_node.value)
+                cur_node = cur_node.next
 
 
 if __name__ == "__main__":
@@ -190,11 +201,12 @@ if __name__ == "__main__":
     print(ht.get("line_3"))
 
     # Test resizing
-    old_capacity = len(ht.storage)
-    ht.resize()
-    new_capacity = len(ht.storage)
+    # old_capacity = len(ht.storage)
+    # ht.resize()
+    # new_capacity = len(ht.storage)
 
-    print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+    # print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+    # ht.delete("line_2")
 
     # Test if data intact after resizing
     print(ht.get("line_1"))
